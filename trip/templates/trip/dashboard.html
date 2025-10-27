@@ -1,0 +1,213 @@
+{% extends 'trip/base.html' %}
+
+{% block title %}Dashboard - Europa Trip Planner {% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-5 mb-4">Meu painel de Viagens</h1>        
+    </div>
+   
+</div>
+
+<!-- Cards com estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card body">
+                <h5 class="card title">Duração Média</h5>
+                <p class="display-6 m-0">{{ avg_duraation|floatformat:1}} dias</p>
+                <small class="text-muted">Média das suas viagens planejadas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div  class="card-body">
+                <h5 class="card-title">Orçamento Médio</h5>
+                <p class="display-6 mb-0">€{{ avg_budget|floatformat:0 }}</p>
+                <small class="text-muted">Média dos seus orçamentos de viagem</small>
+            </div>
+        </div>
+    </div>
+    <di class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Total de Viagens</h5>
+                <p class="dist mb-0">{{ trips.count }}</p>
+                <small class="text-muted">{{ status_counts.COMPLETED|default:0}} concluídas</small>
+            </div>
+        </di>
+    </div>
+</div>
+
+<!-- Gráfico de duração -->
+{% if duration_chart %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                Duração das suas viagens
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ duration_chart }}" alt="Gráfico de duração das viagens" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lista de viagens -->
+ <div class="card mb-4">
+    <div class="card-header bg-white">
+        <div class="row">
+            <div class="col">
+                <h5 class="mb-0">Suas Viagens</h5>
+            </div>
+            <div class="col-auto">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                    type="button" id="sortDropdown" data-bs-toggle="dropdown">Ordenar</button>
+                    <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                        <li><a class="dropdown-item" href="?sort=duration">Duração</a></li>
+                        <li><a class="dropdown-item" href="?sort=duration">Status</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if trips %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Viagem</th>
+                            <th>Datas</th>
+                            <th>Duração</th>
+                            <th>Status</th>
+                            <th>Orçamento</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trip in trips %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'trip:trip_detail' trip.id %}" class="text fw-bold">
+                                        {{ trip.title}}
+                                    </a>
+                                </td>
+                                <td>{{ trip.start_date|date:"d/m/y"}} - {{ trip.end_date|date:"d/m/y" }}</td>
+                                <td>{{ trip.duration_days }} dias</td>
+                                <td>{% if trip.status == 'PLANNING' %}
+                                    <span class="badge bg-info">Planejamento</span>
+                                    {% elif trip.status == 'BOOKED' %}
+                                    <span class="badge bg-primary">Reservada</span>
+                                    {% elif trip.status == 'ONGOING' %}
+                                    <span class="badge bg-warning">Em andamento</span>
+                                    {% elif trip.status == 'COMPLETED' %}
+                                    <span class="badge bg-success">Concluída</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Cancelada</span>
+                                    {% endif %}
+                                </td>
+                                <td>{% if trip.budget %}€{{ trip.budget }}{% else %}-{% endif %}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'trip:trip_detail' trip.id %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'trip:trip_edit' trip.id %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ trip.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Modal de confirmação de exclusão -->
+                                    <div class="modal fade" id="deleteModal{{ trip.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirmar exclusão</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Tem certeza que deseja excluir a viagem "{{ trip.title }}"? Esta ação não pode ser desfeita.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <a href="{% url 'trip:trip_delete' trip.id %}" class="btn btn-danger">Excluir</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-plane-departure fa-4x text-secondary"></i>
+                </div>
+                <h4 class="text-secondary">Você ainda não tem viagens</h4>
+                <p class="text-muted">Clique no botão "Nova Viagem" para começar a planejar!</p>
+               
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Seção de dicas rápidas -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Dicas de Viagem para Europa</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-euro-sign fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Dinheiro</h5>
+                                <p class="text-muted mb-0">Utilize cartões sem taxas internacionais e sempre tenha algum dinheiro em espécie.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-train fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Transporte</h5>
+                                <p class="text-muted mb-0">Passes Eurail podem economizar dinheiro se você planeja viajar muito de trem.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-mobile-alt fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Conectividade</h5>
+                                <p class="text-muted mb-0">Verifique opções de roaming ou compre um SIM card local para dados móveis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

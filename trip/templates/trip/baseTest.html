@@ -1,0 +1,262 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Travel Planner{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .autocomplete-item:hover,
+        .autocomplete-item.highlighted {
+            background-color: #f8f9fa;
+        }
+        
+        .city-name {
+            font-weight: bold;
+        }
+        
+        .city-country {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href=href="{% url 'trip:dashboard' %}">Travel Planner</a>
+            
+            <div class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'trip:itinerary_list' %}">Meus Itinerários</a>
+                    <a class="nav-link" href="{% url 'trip:activity_list' %}">Atividades</a>
+                    <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">Entrar</a>
+                    <a class="nav-link" href="{% url 'register' %}">Cadastrar</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- City Autocomplete Script -->
+    <script>
+        class CityAutocomplete {
+            constructor(inputElement, resultsElement, hiddenElement = null) {
+                this.input = inputElement;
+                this.results = resultsElement;
+                this.hiddenInput = hiddenElement;
+                this.selectedIndex = -1;
+                this.cities = [];
+                this.debounceTimer = null;
+                
+                this.init();
+            }
+            
+            init() {
+                this.input.addEventListener('input', (e) => this.handleInput(e));
+                this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+                this.input.addEventListener('focus', () => this.handleFocus());
+                
+                document.addEventListener('click', (e) => {
+                    if (!this.input.contains(e.target) && !this.results.contains(e.target)) {
+                        this.hideResults();
+                    }
+                });
+            }
+            
+            handleInput(e) {
+                const query = e.target.value.trim();
+                
+                if (this.debounceTimer) {
+                    clearTimeout(this.debounceTimer);
+                }
+                
+                if (query.length < 2) {
+                    this.hideResults();
+                    if (this.hiddenInput) this.hiddenInput.value = '';
+                    return;
+                }
+                
+                this.debounceTimer = setTimeout(() => {
+                    this.searchCities(query);
+                }, 300);
+            }
+            
+            handleKeydown(e) {
+                if (!this.isResultsVisible()) return;
+                
+                switch (e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.selectedIndex = Math.min(this.selectedIndex + 1, this.cities.length - 1);
+                        this.updateHighlight();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+                        this.updateHighlight();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (this.selectedIndex >= 0) {
+                            this.selectCity(this.cities[this.selectedIndex]);
+                        }
+                        break;
+                    case 'Escape':
+                        this.hideResults();
+                        break;
+                }
+            }
+            
+            handleFocus() {
+                if (this.cities.length > 0) {
+                    this.showResults();
+                }
+            }
+            
+            async searchCities(query) {
+                try {
+                    this.showLoading();
+                    
+                    const response = await fetch(`/api/cities/autocomplete/?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    this.cities = data.cities || [];
+                    this.displayResults();
+                } catch (error) {
+                    console.error('Erro ao buscar cidades:', error);
+                    this.showError();
+                }
+            }
+            
+            showLoading() {
+                this.results.innerHTML = '<div class="autocomplete-item">Buscando...</div>';
+                this.showResults();
+            }
+            
+            showError() {
+                this.results.innerHTML = '<div class="autocomplete-item">Erro ao buscar cidades</div>';
+                this.showResults();
+            }
+            
+            displayResults() {
+                if (this.cities.length === 0) {
+                    this.results.innerHTML = '<div class="autocomplete-item">Nenhuma cidade encontrada</div>';
+                } else {
+                    const html = this.cities.map((city, index) => `
+                        <div class="autocomplete-item" data-index="${index}">
+                            <div class="city-name">${city.name}</div>
+                            <div class="city-country">${city.country}</div>
+                        </div>
+                    `).join('');
+                    
+                    this.results.innerHTML = html;
+                    
+                    this.results.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                        item.addEventListener('click', () => this.selectCity(this.cities[index]));
+                        item.addEventListener('mouseenter', () => {
+                            this.selectedIndex = index;
+                            this.updateHighlight();
+                        });
+                    });
+                }
+                
+                this.showResults();
+                this.selectedIndex = -1;
+            }
+            
+            selectCity(city) {
+                this.input.value = city.display_name;
+                if (this.hiddenInput) {
+                    this.hiddenInput.value = city.id;
+                }
+                this.hideResults();
+            }
+            
+            updateHighlight() {
+                this.results.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                    item.classList.toggle('highlighted', index === this.selectedIndex);
+                });
+            }
+            
+            showResults() {
+                this.results.style.display = 'block';
+            }
+            
+            hideResults() {
+                this.results.style.display = 'none';
+            }
+            
+            isResultsVisible() {
+                return this.results.style.display === 'block';
+            }
+        }
+        
+        // Função global para inicializar autocomplete
+        function initCityAutocomplete(inputId, resultsId, hiddenId = null) {
+            const input = document.getElementById(inputId);
+            const results = document.getElementById(resultsId);
+            const hidden = hiddenId ? document.getElementById(hiddenId) : null;
+            
+            if (input && results) {
+                return new CityAutocomplete(input, results, hidden);
+            }
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

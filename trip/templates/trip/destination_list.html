@@ -1,0 +1,722 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block menu %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-center mb-4 text-primary">
+                <i class="fas fa-map-marker-alt"></i> Gerenciamento de Destinos
+            </h2>
+        </div>
+    </div>
+
+    <!-- FORMULÁRIO DE DESTINO -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-lg border-0" id="card-formulario">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> <span id="form-title">Cadastro de Destino</span>
+                    </h4>
+                </div>
+                <div class="card-body bg-light">
+                    <form id="destino-form" method="POST" enctype="multipart/form-data"
+                        action="{% url 'trip:destination_create_update' %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="id_destination_id" name="destination_id">
+
+                        <div class="row">
+                            <!-- Coluna Esquerda -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_name" class="form-label fw-bold">
+                                        <i class="fas fa-tag"></i> Nome do Destino
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="id_name" name="name"
+                                        placeholder="Digite o nome do destino" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_city" class="form-label fw-bold">
+                                        <i class="fas fa-city"></i> Cidade
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="id_city" name="city"
+                                        placeholder="Digite a cidade" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_country" class="form-label fw-bold">
+                                        <i class="fas fa-flag"></i> País
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="id_country"
+                                        name="country" placeholder="Digite o país" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_slug" class="form-label fw-bold">
+                                        <i class="fas fa-link"></i> Slug
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="id_slug" name="slug"
+                                        placeholder="slug-do-destino">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_trip" class="form-label fw-bold">
+                                        <i class="fas fa-suitcase"></i> Viagem
+                                    </label>
+                                    <select class="form-control form-control-lg" id="id_trip" name="trip" required>
+                                        <option value="">Selecione uma viagem</option>
+                                        {% for trip in trips %}
+                                        <option value="{{ trip.id }}">
+                                            {{ trip.title }} 
+                                            ({{ trip.start_date|date:"d/m/Y" }} - {{ trip.end_date|date:"d/m/Y" }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Coluna Direita -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_arrival_date" class="form-label fw-bold">
+                                        <i class="fas fa-calendar-plus"></i> Data de Chegada
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="id_arrival_date"
+                                        name="arrival_date" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_departure_date" class="form-label fw-bold">
+                                        <i class="fas fa-calendar-minus"></i> Data de Partida
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="id_departure_date"
+                                        name="departure_date" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_longitude" class="form-label fw-bold">
+                                        <i class="fas fa-map-pin"></i> Longitude
+                                    </label>
+                                    <input type="number" step="any" class="form-control form-control-lg"
+                                        id="id_longitude" name="longitude" placeholder="-46.6333">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_latitude" class="form-label fw-bold">
+                                        <i class="fas fa-map-pin"></i> Latitude
+                                    </label>
+                                    <input type="number" step="any" class="form-control form-control-lg"
+                                        id="id_latitude" name="latitude" placeholder="-23.5505">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_image" class="form-label fw-bold">
+                                        <i class="fas fa-image"></i> Imagem
+                                    </label>
+                                    <input type="file" class="form-control form-control-lg" id="id_image" name="image"
+                                        accept="image/*">
+                                    <div id="current-image-info" class="mt-2 text-muted" style="display: none;">
+                                        <small><i class="fas fa-info-circle"></i> Imagem atual será mantida se não selecionar nova imagem</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview da Imagem -->
+                        <div class="row mt-3">
+                            <div class="col-12 text-center">
+                                <div class="image-preview-container">
+                                    <img id="id_image_preview" src="#" alt="Preview da Imagem"
+                                        class="img-fluid rounded shadow"
+                                        style="max-width: 300px; max-height: 200px; display: none;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 me-3">
+                                    <i class="fas fa-save"></i> <span id="btn-text">Salvar Destino</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-lg px-5" id="btn-limpar">
+                                    <i class="fas fa-eraser"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABELA -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-info text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-0">
+                                <i class="fas fa-list"></i> Lista de Destinos
+                                {% if db %}
+                                <span class="badge bg-light text-dark ms-2">{{ db.paginator.count }} registro{{ db.paginator.count|pluralize }}</span>
+                                {% endif %}
+                            </h4>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- FORMULÁRIO DE BUSCA -->
+                            <form id="search-form" method="GET" class="d-flex">
+                                <input type="text" name="search" class="form-control me-2"
+                                    placeholder="Buscar por nome, cidade ou país..." 
+                                    value="{{ request.GET.search }}">
+                                <button type="submit" class="btn btn-light">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                {% if request.GET.search %}
+                                <a href="{% url 'trip:destination_list' %}" class="btn btn-outline-light ms-2">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if db %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col" class="text-center">#</th>
+                                    <th scope="col">
+                                        <a href="?search={{ request.GET.search }}&order_by=name&direction={% if request.GET.direction == 'asc' and request.GET.order_by == 'name' %}desc{% else %}asc{% endif %}"
+                                            class="text-white text-decoration-none">
+                                            <i class="fas fa-sort"></i> Nome
+                                            {% if request.GET.order_by == 'name' %}
+                                                {% if request.GET.direction == 'desc' %}
+                                                    <i class="fas fa-sort-down"></i>
+                                                {% else %}
+                                                    <i class="fas fa-sort-up"></i>
+                                                {% endif %}
+                                            {% endif %}
+                                        </a>
+                                    </th>
+                                    <th scope="col"><i class="fas fa-city"></i> Cidade</th>
+                                    <th scope="col"><i class="fas fa-flag"></i> País</th>
+                                    <th scope="col"><i class="fas fa-link"></i> Slug</th>
+                                    <th scope="col">
+                                        <a href="?search={{ request.GET.search }}&order_by=arrival_date&direction={% if request.GET.direction == 'asc' and request.GET.order_by == 'arrival_date' %}desc{% else %}asc{% endif %}"
+                                            class="text-white text-decoration-none">
+                                            <i class="fas fa-calendar-plus"></i> Chegada
+                                        </a>
+                                    </th>
+                                    <th scope="col"><i class="fas fa-calendar-minus"></i> Partida</th>
+                                    <th scope="col"><i class="fas fa-map-pin"></i> Coordenadas</th>
+                                    <th scope="col"><i class="fas fa-suitcase"></i> Viagem</th>
+                                    <th scope="col" class="text-center"><i class="fas fa-cogs"></i> Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for destino in db %}
+                                <tr data-id="{{ destino.id }}" class="destino-row cursor-pointer">
+                                    <td class="text-center fw-bold">{{ destino.id }}</td>
+                                    <td class="fw-bold text-primary">
+                                        {{ destino.name }}
+                                        {% if destino.image %}
+                                        <i class="fas fa-image text-success ms-1" title="Com imagem"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ destino.city }}</td>
+                                    <td>{{ destino.country }}</td>
+                                    <td><code>{{ destino.slug }}</code></td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            {{ destino.arrival_date|date:"d/m/Y" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            {{ destino.departure_date|date:"d/m/Y" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if destino.latitude and destino.longitude %}
+                                        <small class="text-muted">
+                                            {{ destino.latitude|floatformat:4 }}, {{ destino.longitude|floatformat:4 }}
+                                        </small>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ destino.trip.title|truncatechars:20 }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary me-1 btn-editar"
+                                            data-id="{{ destino.id }}" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <a class="btn btn-sm btn-outline-danger"
+                                            href="{% url 'trip:destination_delete' destino.id %}"
+                                            onclick="return confirm('Tem certeza que deseja excluir o destino &quot;{{ destino.name }}&quot;?')"
+                                            title="Deletar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                                            <p class="mb-1">
+                                                {% if request.GET.search %}
+                                                    Nenhum destino encontrado para a busca "{{ request.GET.search }}".
+                                                {% else %}
+                                                    Nenhum destino cadastrado ainda.
+                                                {% endif %}
+                                            </p>
+                                            {% if not request.GET.search %}
+                                            <small>Clique em "Cadastro de Destino" acima para adicionar o primeiro destino.</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Paginação -->
+                {% if db.paginator.num_pages > 1 %}
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted">
+                            <small>
+                                Mostrando {{ db.start_index }} a {{ db.end_index }} 
+                                de {{ db.paginator.count }} registros
+                            </small>
+                        </div>
+                        <nav aria-label="Navegação da página">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if db.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ db.previous_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                {% for num in db.paginator.page_range %}
+                                    {% if num == db.number %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                    {% elif num > db.number|add:'-3' and num < db.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                            {{ num }}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if db.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ db.next_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ db.paginator.num_pages }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        border-radius: 15px;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-control-lg {
+        padding: 12px 16px;
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .table {
+        font-size: 0.95rem;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .destino-row {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .destino-row:hover {
+        background-color: #f8f9fa !important;
+        transform: scale(1.01);
+    }
+
+    .image-preview-container {
+        margin: 20px 0;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+    }
+
+    .pagination {
+        margin: 0;
+    }
+
+    .pagination .page-link {
+        border-radius: 10px;
+        margin: 0 3px;
+        border: 2px solid #dee2e6;
+        color: #667eea;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-decoration-none:hover {
+        text-decoration: underline !important;
+    }
+
+    code {
+        background-color: #f8f9fa;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .border-primary-highlight {
+        border: 3px solid #007bff !important;
+        box-shadow: 0 0 20px rgba(0, 123, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Preview da imagem
+        $('#id_image').on('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#id_image_preview').attr('src', e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                $('#id_image_preview').hide();
+            }
+        });
+
+        // Auto-gerar slug a partir do nome
+        $('#id_name').on('input', function () {
+            // Só gera slug automaticamente se o campo slug estiver vazio ou não foi editado manualmente
+            if (!$('#id_slug').data('manually-edited')) {
+                const nome = $(this).val();
+                const slug = nome.toLowerCase()
+                    .replace(/[áàâãä]/g, 'a')
+                    .replace(/[éèêë]/g, 'e')
+                    .replace(/[íìîï]/g, 'i')
+                    .replace(/[óòôõö]/g, 'o')
+                    .replace(/[úùûü]/g, 'u')
+                    .replace(/[ç]/g, 'c')
+                    .replace(/[^a-z0-9]/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+                $('#id_slug').val(slug);
+            }
+        });
+
+        // Marcar slug como editado manualmente
+        $('#id_slug').on('input', function () {
+            $(this).data('manually-edited', true);
+        });
+
+        // Interceptar o submit do formulário principal
+        $('#destino-form').on('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const destinoId = $('#id_destination_id').val();
+            
+            // Mostrar loading no botão
+            const $submitBtn = $(this).find('button[type="submit"]');
+            const originalText = $submitBtn.html();
+            $submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Salvando...').prop('disabled', true);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Mostrar mensagem de sucesso
+                        showAlert('success', response.message);
+                        
+                        // Limpar formulário
+                        limparFormulario();
+                        
+                        // Recarregar a página para atualizar a tabela
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showAlert('danger', response.message || 'Erro ao salvar o destino.');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Erro AJAX:', xhr);
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.errors) {
+                            let errorMessage = 'Erro de validação:\n';
+                            for (const campo in response.errors) {
+                                errorMessage += `• ${campo}: ${response.errors[campo].join(', ')}\n`;
+                            }
+                            showAlert('danger', errorMessage.replace(/\n/g, '<br>'));
+                        } else {
+                            showAlert('danger', response.message || 'Erro inesperado ao salvar o destino.');
+                        }
+                    } catch (e) {
+                        showAlert('danger', 'Erro inesperado. Verifique os dados e tente novamente.');
+                    }
+                },
+                complete: function() {
+                    // Restaurar botão
+                    $submitBtn.html(originalText).prop('disabled', false);
+                }
+            });
+        });
+
+        // Evento para botões de editar
+        $(document).on('click', '.btn-editar', function(e) {
+            e.stopPropagation();
+            const destinoId = $(this).data('id');
+            editarDestino(destinoId);
+        });
+
+        // Evento para linhas da tabela (clique na linha inteira)
+        $(document).on('click', '.destino-row', function(e) {
+            // Evitar trigger duplo quando clicar nos botões
+            if (!$(e.target).closest('button, a').length) {
+                const destinoId = $(this).data('id');
+                selecionarDestino(destinoId);
+            }
+        });
+
+        // Evento para botão limpar
+        $('#btn-limpar').on('click', function() {
+            limparFormulario();
+        });
+
+        // Auto-hide alerts após 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    });
+
+    function selecionarDestino(destinoId) {
+        editarDestino(destinoId);
+    }
+
+    function editarDestino(destinoId) {
+        // URL da view de detalhes do destino
+        const url = "{% url 'trip:destination_detail' 0 %}".replace('0', destinoId);
+
+        // Mostrar loading
+        showAlert('info', '<i class="fas fa-spinner fa-spin"></i> Carregando dados do destino...');
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (data) {
+                // Limpar alert de loading
+                $('.alert').remove();
+                
+                // Preencher o formulário
+                $('#id_destination_id').val(data.id);
+                $('#id_name').val(data.name);
+                $('#id_city').val(data.city);
+                $('#id_country').val(data.country);
+                $('#id_slug').val(data.slug).data('manually-edited', true); // Marcar como editado
+                $('#id_arrival_date').val(data.arrival_date);
+                $('#id_departure_date').val(data.departure_date);
+                $('#id_longitude').val(data.longitude);
+                $('#id_latitude').val(data.latitude);
+                $('#id_trip').val(data.trip_id);
+
+                // Atualizar título do formulário
+                $('#form-title').text('Editar Destino');
+                $('#btn-text').text('Atualizar Destino');
+
+                // Mostrar imagem atual se existir
+                if (data.image) {
+                    $('#id_image_preview').attr('src', data.image).show();
+                    $('#current-image-info').show();
+                } else {
+                    $('#id_image_preview').hide();
+                    $('#current-image-info').hide();
+                }
+
+                // Scroll para o formulário
+                $('html, body').animate({
+                    scrollTop: $("#destino-form").offset().top - 100
+                }, 500);
+
+                // Destacar o formulário
+                $('#card-formulario').addClass('border-primary-highlight');
+                setTimeout(function () {
+                    $('#card-formulario').removeClass('border-primary-highlight');
+                }, 2000);
+
+                showAlert('success', `Dados do destino "${data.name}" carregados para edição.`);
+            },
+            error: function (xhr) {
+                console.error('Erro ao carregar destino:', xhr);
+                showAlert('danger', 'Erro ao carregar os dados do destino. Tente novamente.');
+            }
+        });
+    }
+
+    function limparFormulario() {
+        $('#destino-form')[0].reset();
+        $('#id_destination_id').val('');
+        $('#id_image_preview').hide();
+        $('#current-image-info').hide();
+        $('#id_slug').removeData('manually-edited'); // Remover flag de edição manual
+        
+        // Resetar títulos
+        $('#form-title').text('Cadastro de Destino');
+        $('#btn-text').text('Salvar Destino');
+        
+        // Remover destaque do formulário
+        $('#card-formulario').removeClass('border-primary-highlight');
+        
+        $('html, body').animate({
+            scrollTop: $("#destino-form").offset().top - 100
+        }, 500);
+    }
+
+    function showAlert(type, message) {
+        // Remover alerts existentes
+        $('.alert').remove();
+        
+        // Criar novo alert
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show position-fixed" 
+                 style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        $('body').append(alertHtml);
+        
+        // Auto-hide após 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+
+    // Melhorar UX da busca
+    $('#search-form input[name="search"]').on('keyup', function() {
+        const query = $(this).val();
+        if (query.length === 0 && $(this).data('had-content')) {
+            // Se limpar o campo de busca, mostrar todos os resultados
+            $(this).closest('form').submit();
+        }
+        $(this).data('had-content', query.length > 0);
+    });
+</script>
+
+{% endblock %}

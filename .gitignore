@@ -1,0 +1,7 @@
+envTravel
+README.md
+requirements.txt
+travel_planner/__pycache__
+staticfiles
+media
+trip/migrations/0001_initial.py trip/migrations/0002_activity_itinerary_itineraryactivity.py

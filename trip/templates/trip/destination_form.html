@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destination Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #43cea2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-field {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #43cea2;
+            box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 206, 162, 0.3);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            max-width: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Destination Management</h1>
+            <p>Discover and manage amazing travel destinations</p>
+        </div>
+
+        <div class="content">
+            <!-- Add New Destination Form -->
+            <div class="form-section">
+                <h2 style="margin-bottom: 20px; color: #333;">Add New Destination</h2>
+                <form id="destinationForm">
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="name">Destination Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="country">Country *</label>
+                            <input type="text" id="country" name="country" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="region">Region/State</label>
+                            <input type="text" id="region" name="region">
+                        </div>
+                        <div class="form-field">
+                            <label for="category">Category</label>
+                            <select id="category" name="category">
+                                <option value="">Select Category</option>
+                                <option value="City">City</option>
+                                <option value="Beach">Beach</option>
+                                <option value="Mountain">Mountain</option>
+                                <option value="Historical">Historical</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="Nature">Nature</option>
+                                <option value="Religious">Religious</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="bestSeason">Best Season</label>
+                            <select id="bestSeason" name="bestSeason">
+                                <option value="">Select Season</option>
+                                <option value="Spring">Spring</option>
+                                <option value="Summer">Summer</option>
+                                <option value="Fall">Fall</option>
+                                <option value="Winter">Winter</option>
+                                <option value="Year-round">Year-round</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="avgBudget">Average Budget (per day)</label>
+                            <select id="avgBudget" name="avgBudget">
+                                <option value="">Select Budget Range</option>
+                                <option value="Budget ($0-50)">Budget ($0-50)</option>
+                                <option value="Moderate ($50-150)">Moderate ($50-150)</option>
+                                <option value="Luxury ($150+)">Luxury ($150+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="attractions">Main Attractions</label>
+                            <textarea id="attractions" name="attractions" rows="2"
+                                placeholder="List main attractions separated by commas"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <a href="{% url 'trip:dashboard' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Retornar
+                        </a>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-undo me-1"></i>Add Destination
+                        </button>
+                        <button type="reset" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-undo me-1"></i>Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search destinations..." onkeyup="searchTable()">
+            </div>
+
+            <!-- Destinations Table -->
+            <div class="table-container">
+                <table id="destinationTable">
+                    <thead>
+                        <tr>
+                            <th>Destination</th>
+                            <th>Country</th>
+                            <th>Region</th>
+                            <th>Category</th>
+                            <th>Best Season</th>
+                            <th>Budget</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="destinationTableBody">
+                        <!-- Sample data -->
+                        <tr>
+                            <td>Paris</td>
+                            <td>France</td>
+                            <td>Île-de-France</td>
+                            <td>City</td>
+                            <td>Spring</td>
+                            <td>Luxury ($150+)</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editDestination(this)">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteDestination(this)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bali</td>
+                            <td>Indonesia</td>
+                            <td>Bali Province</td>
+                            <td>Beach</td>
+                            <td>Year-round</td>
+                            <td>Moderate ($50-150)</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editDestination(this)">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteDestination(this)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Machu Picchu</td>
+                            <td>Peru</td>
+                            <td>Cusco</td>
+                            <td>Historical</td>
+                            <td>Summer</td>
+                            <td>Moderate ($50-150)</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editDestination(this)">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteDestination(this)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Tokyo</td>
+                            <td>Japan</td>
+                            <td>Kanto</td>
+                            <td>City</td>
+                            <td>Spring</td>
+                            <td>Luxury ($150+)</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editDestination(this)">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteDestination(this)">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission handler
+        document.getElementById('destinationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const destination = {};
+
+            for (let [key, value] of formData.entries()) {
+                destination[key] = value;
+            }
+
+            addDestinationToTable(destination);
+            this.reset();
+        });
+
+        function addDestinationToTable(destination) {
+            const tbody = document.getElementById('destinationTableBody');
+            const row = tbody.insertRow();
+
+            row.innerHTML = `
+                <td>${destination.name}</td>
+                <td>${destination.country}</td>
+                <td>${destination.region || '-'}</td>
+                <td>${destination.category || '-'}</td>
+                <td>${destination.bestSeason || '-'}</td>
+                <td>${destination.avgBudget || '-'}</td>
+                <td>
+                    <button class="action-btn edit-btn" onclick="editDestination(this)">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteDestination(this)">Delete</button>
+                </td>
+            `;
+        }
+
+        function editDestination(button) {
+            const row = button.closest('tr');
+            const cells = row.getElementsByTagName('td');
+
+            // Fill form with current data
+            document.getElementById('name').value = cells[0].textContent;
+            document.getElementById('country').value = cells[1].textContent;
+            document.getElementById('region').value = cells[2].textContent === '-' ? '' : cells[2].textContent;
+            document.getElementById('category').value = cells[3].textContent === '-' ? '' : cells[3].textContent;
+            document.getElementById('bestSeason').value = cells[4].textContent === '-' ? '' : cells[4].textContent;
+            document.getElementById('avgBudget').value = cells[5].textContent === '-' ? '' : cells[5].textContent;
+
+            // Remove the row to be updated
+            row.remove();
+
+            // Scroll to form
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteDestination(button) {
+            if (confirm('Are you sure you want to delete this destination?')) {
+                button.closest('tr').remove();
+            }
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById('destinationTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < td.length - 1; j++) {
+                    if (td[j] && td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

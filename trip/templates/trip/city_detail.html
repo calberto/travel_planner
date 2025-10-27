@@ -1,0 +1,316 @@
+<!-- templates/trip/city_detail.html -->
+{% extends 'trip/base.html' %}
+
+{% block title %}{{ city.name }} - Europa Trip Planner{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'trip:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'trip:city_autocomplete' %}">Cidades</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ city.name }}</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-5">{{ city.name }}</h1>
+        <p class="lead">{{ city.country.name }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <div class="btn-group">
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#addToTripModal">
+                <i class="fas fa-plus me-2"></i>Adicionar a uma viagem
+            </button>
+            <a href="#" class="btn btn-outline-secondary">
+                <i class="far fa-heart me-1"></i>Favoritar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informações principais -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="h4 mb-3">Sobre {{ city.name }}</h2>
+                <p>{{ city.description }}</p>
+                
+                <hr class="my-4">
+                
+                <!-- Tabs para diferentes seções -->
+                <ul class="nav nav-tabs" id="cityTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="areas-tab" data-bs-toggle="tab" data-bs-target="#areas" type="button" role="tab">Áreas para Hospedagem</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="transport-tab" data-bs-toggle="tab" data-bs-target="#transport" type="button" role="tab">Transporte Local</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="accommodation-tab" data-bs-toggle="tab" data-bs-target="#accommodation" type="button" role="tab">Tipos de Hospedagem</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content py-4" id="cityTabsContent">
+                    <!-- Áreas recomendadas -->
+                    <div class="tab-pane fade show active" id="areas" role="tabpanel" aria-labelledby="areas-tab">
+                        <div class="row">
+                            {% for area in city.areas.all %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ area.name }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ area.atmosphere }}</h6>
+                                            <p class="card-text">{{ area.description }}</p>
+                                            <p class="card-text fw-bold">€{{ area.price_range_min }} - €{{ area.price_range_max }} / noite</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="col-12">
+                                    <p class="text-muted">Nenhuma área recomendada disponível para esta cidade.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Transporte local -->
+                    <div class="tab-pane fade" id="transport" role="tabpanel" aria-labelledby="transport-tab">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Preço</th>
+                                        <th>Descrição</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transport in city.local_transport.all %}
+                                        <tr>
+                                            <td>{{ transport.name }}</td>
+                                            <td>€{{ transport.price }}</td>
+                                            <td>{{ transport.description }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center">Nenhuma informação de transporte disponível.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Hospedagem -->
+                    <div class="tab-pane fade" id="accommodation" role="tabpanel" aria-labelledby="accommodation-tab">
+                        <div class="row">
+                            {% for type in accommodation_types %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ type.get_accommodation_type_display }}</h5>
+                                            <p class="card-text">Preço médio: €{{ type.avg_price|floatformat:0 }}/noite</p>
+                                            <p class="card-text">{{ type.count }} opções disponíveis</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="col-12">
+                                    <p class="text-muted">Nenhuma informação de hospedagem disponível.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar com informações adicionais -->
+    <div class="col-lg-4">
+        <!-- Mapa -->
+        <div class="card mb-4">
+            <div class="card-body p-0">
+                {% if city.latitude and city.longitude %}
+                    <div id="cityMap" class="ratio ratio-4x3">
+                        <!-- O mapa será carregado via JavaScript -->
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-map-marked-alt fa-3x text-secondary mb-3"></i>
+                        <p class="text-muted mb-0">Mapa não disponível</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Conexões de transporte -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Conexões de Transporte</h5>
+            </div>
+            <div class="card-body">
+                <h6>Chegando em {{ city.name }}</h6>
+                <ul class="list-group list-group-flush mb-3">
+                    {% for transport in city.arrivals.all|slice:":3" %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas 
+                                    {% if transport.transport_type == 'PLANE' %}fa-plane
+                                    {% elif transport.transport_type == 'TRAIN' %}fa-train
+                                    {% elif transport.transport_type == 'BUS' %}fa-bus
+                                    {% else %}fa-route{% endif %} 
+                                    me-2 text-primary"></i>
+                                De {{ transport.origin.name }}
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ transport.duration_hours }} h</span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">Nenhuma conexão disponível</li>
+                    {% endfor %}
+                </ul>
+                
+                <h6>Saindo de {{ city.name }}</h6>
+                <ul class="list-group list-group-flush">
+                    {% for transport in city.departures.all|slice:":3" %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas 
+                                    {% if transport.transport_type == 'PLANE' %}fa-plane
+                                    {% elif transport.transport_type == 'TRAIN' %}fa-train
+                                    {% elif transport.transport_type == 'BUS' %}fa-bus
+                                    {% else %}fa-route{% endif %} 
+                                    me-2 text-primary"></i>
+                                Para {{ transport.destination.name }}
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ transport.duration_hours }} h</span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">Nenhuma conexão disponível</li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'trip:city_transport' city.id %}" class="btn btn-sm btn-outline-primary">Ver todas as conexões</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Clima -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Clima em {{ city.name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h6>Primavera</h6>
+                        <i class="fas fa-cloud-sun fa-2x text-warning mb-2"></i>
+                        <p class="mb-0">15-22°C</p>
+                    </div>
+                    <div class="col-4">
+                        <h6>Verão</h6>
+                        <i class="fas fa-sun fa-2x text-warning mb-2"></i>
+                        <p class="mb-0">20-30°C</p>
+                    </div>
+                    <div class="col-4">
+                        <h6>Outono</h6>
+                        <i class="fas fa-cloud-rain fa-2x text-info mb-2"></i>
+                        <p class="mb-0">12-20°C</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar cidade à viagem -->
+<div class="modal fade" id="addToTripModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar {{ city.name }} a uma viagem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'add_city_to_trip_modal' city.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="trip_select" class="form-label">Selecione uma viagem:</label>
+                        <select name="trip_id" id="trip_select" class="form-select" required>
+                            <option value="">Escolha uma viagem...</option>
+                            {% for trip in user_trips %}
+                                <option value="{{ trip.id }}">{{ trip.title }} ({{ trip.start_date|date:"d/m/Y" }} - {{ trip.end_date|date:"d/m/Y" }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="arrival_date" class="form-label">Data de chegada:</label>
+                                <input type="date" name="arrival_date" id="arrival_date" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="departure_date" class="form-label">Data de saída:</label>
+                                <input type="date" name="departure_date" id="departure_date" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label for="notes" class="form-label">Notas:</label>
+                        <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="add_city_form" class="btn btn-primary">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if the map container exists
+        const mapContainer = document.getElementById('cityMap');
+        if (!mapContainer) {
+            console.error('Map container #cityMap not found.');
+            return;
+        }
+
+        // Check if city coordinates are available
+        if (city.latitude && city.longitude) {
+
+            // Validate coordinates to ensure they are numbers
+            const lat = parseFloat('{{ city.latitude }}');
+            const lng = parseFloat('{{ city.longitude }}');
+            if (isNaN(lat) || isNaN(lng)) {
+                console.error('Invalid coordinates: latitude={{ city.latitude }}, longitude={{ city.longitude }}');
+                return;
+            }
+
+            // Initialize the map
+            var map = L.map('cityMap').setView([lat, lng], 13);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add a marker with a popup
+            L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup('{{ city.name|escapejs }}')
+                .openPopup();
+        } else {
+            console.warn('City coordinates not available. Map not initialized.');
+        
+    }});
+</script>
+{% endblock %}

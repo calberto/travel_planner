@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Autocomplete Example</title>
+    <style>
+        .autocomplete-container {
+            position: relative;
+            max-width: 400px;
+            margin: 20px;
+        }
+        
+        .autocomplete-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .autocomplete-input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .autocomplete-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        .autocomplete-item:hover,
+        .autocomplete-item.highlighted {
+            background-color: #f8f9fa;
+        }
+        
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        
+        .city-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .city-country {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .loading {
+            padding: 12px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .no-results {
+            padding: 12px;
+            text-align: center;
+            color: #999;
+        }
+        
+        .selected-city {
+            margin: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .form-group {
+            margin: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Exemplo de City Autocomplete</h1>
+        
+        <!-- Exemplo 1: Autocomplete básico -->
+        <div class="form-group">
+            <label for="city-search">Buscar Cidade:</label>
+            <div class="autocomplete-container">
+                <input 
+                    type="text" 
+                    id="city-search"
+                    class="autocomplete-input" 
+                    placeholder="Digite o nome da cidade..."
+                    autocomplete="off"
+                >
+                <div id="city-results" class="autocomplete-results"></div>
+            </div>
+        </div>
+        
+        <!-- Mostrar cidade selecionada -->
+        <div id="selected-city-info" class="selected-city">
+            <h3>Cidade Selecionada:</h3>
+            <p><strong>Nome:</strong> <span id="selected-name"></span></p>
+            <p><strong>País:</strong> <span id="selected-country"></span></p>
+            <p><strong>ID:</strong> <span id="selected-id"></span></p>
+        </div>
+        
+        <!-- Exemplo 2: Em um formulário Django -->
+        <div class="form-group">
+            <h2>Exemplo em Formulário Django:</h2>
+            <form method="post">
+                <!-- Campo hidden para armazenar o ID da cidade -->
+                <input type="hidden" id="city-id" name="city_id" value="">
+                
+                <label for="city-input">Cidade de Destino:</label>
+                <div class="autocomplete-container">
+                    <input 
+                        type="text" 
+                        id="city-input"
+                        name="city_name"
+                        class="autocomplete-input" 
+                        placeholder="Digite o nome da cidade..."
+                        autocomplete="off"
+                        required
+                    >
+                    <div id="city-dropdown" class="autocomplete-results"></div>
+                </div>
+                
+                <button type="submit" style="margin-top: 10px; padding: 10px 20px;">Enviar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Classe para gerenciar o autocomplete
+        class CityAutocomplete {
+            constructor(inputElement, resultsElement, options = {}) {
+                this.input = inputElement;
+                this.results = resultsElement;
+                this.selectedIndex = -1;
+                this.cities = [];
+                this.debounceTimer = null;
+                this.options = {
+                    minChars: 2,
+                    debounceTime: 300,
+                    maxResults: 10,
+                    apiUrl: '/api/cities/autocomplete/',
+                    onSelect: options.onSelect || null,
+                    ...options
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                // Event listeners
+                this.input.addEventListener('input', (e) => this.handleInput(e));
+                this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+                
+                // Fechar dropdown quando clicar fora
+                document.addEventListener('click', (e) => {
+                    if (!this.input.contains(e.target) && !this.results.contains(e.target)) {
+                        this.hideResults();
+                    }
+                });
+            }
+            
+            handleInput(e) {
+                const query = e.target.value.trim();
+                
+                // Limpar timer anterior
+                if (this.debounceTimer) {
+                    clearTimeout(this.debounceTimer);
+                }
+                
+                if (query.length < this.options.minChars) {
+                    this.hideResults();
+                    return;
+                }
+                
+                // Debounce: aguardar um tempo antes de fazer a busca
+                this.debounceTimer = setTimeout(() => {
+                    this.searchCities(query);
+                }, this.options.debounceTime);
+            }
+            
+            handleKeydown(e) {
+                if (!this.isResultsVisible()) return;
+                
+                switch (e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.highlightNext();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.highlightPrevious();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (this.selectedIndex >= 0) {
+                            this.selectCity(this.cities[this.selectedIndex]);
+                        }
+                        break;
+                    case 'Escape':
+                        this.hideResults();
+                        break;
+                }
+            }
+            
+            async searchCities(query) {
+                try {
+                    this.showLoading();
+                    
+                    const response = await fetch(`${this.options.apiUrl}?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (data.cities) {
+                        this.cities = data.cities.slice(0, this.options.maxResults);
+                        this.displayResults();
+                    } else {
+                        this.showNoResults();
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar cidades:', error);
+                    this.showError();
+                }
+            }
+            
+            showLoading() {
+                this.results.innerHTML = '<div class="loading">Buscando...</div>';
+                this.results.style.display = 'block';
+            }
+            
+            showNoResults() {
+                this.results.innerHTML = '<div class="no-results">Nenhuma cidade encontrada</div>';
+                this.results.style.display = 'block';
+            }
+            
+            showError() {
+                this.results.innerHTML = '<div class="no-results">Erro ao buscar cidades</div>';
+                this.results.style.display = 'block';
+            }
+            
+            displayResults() {
+                if (this.cities.length === 0) {
+                    this.showNoResults();
+                    return;
+                }
+                
+                const html = this.cities.map((city, index) => `
+                    <div class="autocomplete-item" data-index="${index}">
+                        <div class="city-name">${city.name}</div>
+                        <div class="city-country">${city.country}</div>
+                    </div>
+                `).join('');
+                
+                this.results.innerHTML = html;
+                this.results.style.display = 'block';
+                this.selectedIndex = -1;
+                
+                // Adicionar event listeners aos itens
+                this.results.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                    item.addEventListener('click', () => {
+                        this.selectCity(this.cities[index]);
+                    });
+                    
+                    item.addEventListener('mouseenter', () => {
+                        this.highlightItem(index);
+                    });
+                });
+            }
+            
+            highlightNext() {
+                this.selectedIndex = Math.min(this.selectedIndex + 1, this.cities.length - 1);
+                this.updateHighlight();
+            }
+            
+            highlightPrevious() {
+                this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+                this.updateHighlight();
+            }
+            
+            highlightItem(index) {
+                this.selectedIndex = index;
+                this.updateHighlight();
+            }
+            
+            updateHighlight() {
+                this.results.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                    item.classList.toggle('highlighted', index === this.selectedIndex);
+                });
+            }
+            
+            selectCity(city) {
+                this.input.value = city.display_name;
+                this.hideResults();
+                
+                if (this.options.onSelect) {
+                    this.options.onSelect(city);
+                }
+            }
+            
+            hideResults() {
+                this.results.style.display = 'none';
+                this.selectedIndex = -1;
+            }
+            
+            isResultsVisible() {
+                return this.results.style.display === 'block';
+            }
+        }
+        
+        // Inicializar autocomplete para o primeiro exemplo
+        const cityAutocomplete1 = new CityAutocomplete(
+            document.getElementById('city-search'),
+            document.getElementById('city-results'),
+            {
+                onSelect: (city) => {
+                    // Mostrar informações da cidade selecionada
+                    document.getElementById('selected-name').textContent = city.name;
+                    document.getElementById('selected-country').textContent = city.country;
+                    document.getElementById('selected-id').textContent = city.id;
+                    document.getElementById('selected-city-info').style.display = 'block';
+                }
+            }
+        );
+        
+        // Inicializar autocomplete para o formulário Django
+        const cityAutocomplete2 = new CityAutocomplete(
+            document.getElementById('city-input'),
+            document.getElementById('city-dropdown'),
+            {
+                onSelect: (city) => {
+                    // Armazenar o ID da cidade no campo hidden
+                    document.getElementById('city-id').value = city.id;
+                    console.log('Cidade selecionada:', city);
+                }
+            }
+        );
+    </script>
+</body>
+</html>

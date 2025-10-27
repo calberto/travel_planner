@@ -1,0 +1,21 @@
+# trip/templates/trip/city_transport.html:
+
+{% 'base.html' %}
+
+{% block title %}Transporte -{{ city.name}}{% endblock %}
+
+{% block content %} 
+	<div class="container">
+		<h1>Transporte em {{ city.name}}</h1>
+		
+		<div class="row">
+			<div class="col-md-12">
+				<p>Informações sobre transporte na cidade de {{ city.name }}</p>
+				<!-- Adicione o conteúdo que você precisa aqui -->
+				
+				<a href="{% url 'trip:city_detail' city.id%}" class="btn btn-secondary">Voltar para detalhes da cidade
+				</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

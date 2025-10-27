@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Itinerários</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 12px 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .itineraries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .itinerary-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .itinerary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .itinerary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .itinerary-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .itinerary-date {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            background: #ecf0f1;
+            padding: 4px 12px;
+            border-radius: 15px;
+            white-space: nowrap;
+        }
+
+        .itinerary-description {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .itinerary-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .itinerary-author {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .itinerary-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 15px;
+            font-size: 0.85rem;
+            border-radius: 15px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-edit {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            opacity: 0.7;
+            margin-bottom: 25px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination a, .pagination span {
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .pagination .current {
+            background: rgba(255,255,255,0.4);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .itineraries-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 Itinerários</h1>
+            <p>Explore e gerencie seus roteiros de viagem</p>
+        </div>
+
+        <div class="actions">
+            <a href="#" class="btn">➕ Novo Itinerário</a>
+            <input type="text" class="search-box" placeholder="🔍 Buscar itinerários..." id="searchInput">
+        </div>
+
+        <div class="itineraries-grid" id="itinerariesGrid">
+            <!-- Exemplo de itinerário -->
+            <div class="itinerary-card">
+                <div class="itinerary-header">
+                    <div>
+                        <div class="itinerary-title">Roteiro Cultural - Centro Histórico</div>
+                    </div>
+                    <div class="itinerary-date">15/05/2025</div>
+                </div>
+                <div class="itinerary-description">
+                    Um passeio completo pelos principais pontos históricos e culturais da cidade, incluindo museus, monumentos e locais de interesse turístico.
+                </div>
+                <div class="itinerary-meta">
+                    <div class="itinerary-author">Por: João Silva</div>
+                    <div class="itinerary-actions">
+                        <a href="#" class="btn-small btn-view">👁️ Ver</a>
+                        <a href="#" class="btn-small btn-edit">✏️ Editar</a>
+                        <a href="#" class="btn-small btn-delete">🗑️ Excluir</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exemplo de itinerário 2 -->
+            <div class="itinerary-card">
+                <div class="itinerary-header">
+                    <div>
+                        <div class="itinerary-title">Aventura na Natureza</div>
+                    </div>
+                    <div class="itinerary-date">20/05/2025</div>
+                </div>
+                <div class="itinerary-description">
+                    Trilhas ecológicas, cachoeiras e atividades ao ar livre para os amantes da natureza e aventura.
+                </div>
+                <div class="itinerary-meta">
+                    <div class="itinerary-author">Por: Maria Santos</div>
+                    <div class="itinerary-actions">
+                        <a href="#" class="btn-small btn-view">👁️ Ver</a>
+                        <a href="#" class="btn-small btn-edit">✏️ Editar</a>
+                        <a href="#" class="btn-small btn-delete">🗑️ Excluir</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exemplo de itinerário 3 -->
+            <div class="itinerary-card">
+                <div class="itinerary-header">
+                    <div>
+                        <div class="itinerary-title">Gastronomia Local</div>
+                    </div>
+                    <div class="itinerary-date">25/05/2025</div>
+                </div>
+                <div class="itinerary-description">
+                    Descubra os sabores únicos da região visitando restaurantes tradicionais, mercados locais e experiências gastronômicas autênticas.
+                </div>
+                <div class="itinerary-meta">
+                    <div class="itinerary-author">Por: Carlos Mendes</div>
+                    <div class="itinerary-actions">
+                        <a href="#" class="btn-small btn-view">👁️ Ver</a>
+                        <a href="#" class="btn-small btn-edit">✏️ Editar</a>
+                        <a href="#" class="btn-small btn-delete">🗑️ Excluir</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado vazio (descomente para mostrar quando não houver itinerários) -->
+        <!--
+        <div class="empty-state">
+            <h3>📍 Nenhum itinerário encontrado</h3>
+            <p>Que tal criar seu primeiro roteiro de viagem?</p>
+            <a href="#" class="btn">➕ Criar Itinerário</a>
+        </div>
+        -->
+
+        <!-- Paginação -->
+        <div class="pagination">
+            <a href="#">« Anterior</a>
+            <span class="current">1</span>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">Próximo »</a>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidade de busca
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.itinerary-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.itinerary-title').textContent.toLowerCase();
+                const description = card.querySelector('.itinerary-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Confirmação de exclusão
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Tem certeza que deseja excluir este itinerário?')) {
+                    // Aqui você adicionaria a lógica de exclusão
+                    console.log('Itinerário excluído');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Ativistas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 12px 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .activists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .activist-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .activist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .activist-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .activist-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .activist-info {
+            flex: 1;
+        }
+
+        .activist-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .activist-role {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            background: #ecf0f1;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .activist-bio {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .activist-causes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .cause-tag {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .activist-contact {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .activist-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .btn-small {
+            padding: 6px 15px;
+            font-size: 0.85rem;
+            border-radius: 15px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-view {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-edit {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: scale(1.05);
+        }
+
+        .activist-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            opacity: 0.7;
+            margin-bottom: 25px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination a, .pagination span {
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .pagination .current {
+            background: rgba(255,255,255,0.4);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .activists-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .activist-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✊ Ativistas</h1>
+            <p>Conheça os defensores de causas sociais</p>
+        </div>
+
+        <div class="actions">
+            <a href="#" class="btn">➕ Novo Ativista</a>
+            <input type="text" class="search-box" placeholder="🔍 Buscar ativistas..." id="searchInput">
+        </div>
+
+        <div class="filter-tabs">
+            <a href="#" class="filter-tab active" data-filter="all">Todos</a>
+            <a href="#" class="filter-tab" data-filter="direitos-humanos">Direitos Humanos</a>
+            <a href="#" class="filter-tab" data-filter="meio-ambiente">Meio Ambiente</a>
+            <a href="#" class="filter-tab" data-filter="educacao">Educação</a>
+            <a href="#" class="filter-tab" data-filter="igualdade">Igualdade</a>
+        </div>
+
+        <div class="activists-grid" id="activistsGrid">
+            <!-- Exemplo de ativista 1 -->
+            <div class="activist-card" data-causes="direitos-humanos igualdade">
+                <div class="activist-header">
+                    <div class="activist-avatar">MS</div>
+                    <div class="activist-info">
+                        <div class="activist-name">Maria Silva</div>
+                        <div class="activist-role">Advogada de Direitos Humanos</div>
+                    </div>
+                </div>
+                <div class="activist-bio">
+                    Defensora incansável dos direitos humanos, atua há mais de 10 anos na proteção de comunidades vulneráveis e na promoção da justiça social.
+                </div>
+                <div class="activist-causes">
+                    <span class="cause-tag">Direitos Humanos</span>
+                    <span class="cause-tag">Igualdade</span>
+                </div>
+                <div class="activist-contact">
+                    <div class="contact-item">
+                        <span>📧</span>
+                        <span>maria@exemplo.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>📱</span>
+                        <span>(11) 99999-9999</span>
+                    </div>
+                </div>
+                <div class="activist-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">25</div>
+                        <div class="stat-label">Campanhas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">150</div>
+                        <div class="stat-label">Seguidores</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Anos</div>
+                    </div>
+                </div>
+                <div class="activist-actions">
+                    <a href="#" class="btn-small btn-view">👁️ Ver</a>
+                    <a href="#" class="btn-small btn-edit">✏️ Editar</a>
+                    <a href="#" class="btn-small btn-delete">🗑️ Excluir</a>
+                </div>
+            </div>
+
+            <!-- Exemplo de ativista 2 -->
+            <div class="activist-card" data-causes="meio-ambiente">
+                <div class="activist-header">
+                    <div class="activist-avatar">JS</div>
+                    <div class="activist-info">
+                        <div class="activist-name">João Santos</div>
+                        <div class="activist-role">Ambientalista</div>
+                    </div>
+                </div>
+                <div class="activist-bio">
+                    Biólogo especializado em conservação ambiental, lidera projetos de preservação da fauna e flora nativas em diversas regiões do país.
+                </div>
+                <div class="activist-causes">
+                    <span class="cause-tag">Meio Ambiente</span>
+                </div>
+                <div class="activist-contact">
+                    <div class="contact-item">
+                        <span>📧</span>
+                        <span>joao@natureza.org</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>🌐</span>
+                        <span>www.salvemonde.org</span>
+                    </div>
+                </div>
+                <div class="activist-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">42</div>
+                        <div class="stat-label">Campanhas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">320</div>
+                        <div class="stat-label">Seguidores</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Anos</div>
+                    </div>
+                </div>
+                <div class="activist-actions">
+                    <a href="#" class="btn-small btn-view">👁️ Ver</a>
+                    <a href="#" class="btn-small btn-edit">✏️ Editar</a>
+                    <a href="#" class="btn-small btn-delete">🗑️ Excluir</a>
+                </div>
+            </div>
+
+            <!-- Exemplo de ativista 3 -->
+            <div class="activist-card" data-causes="educacao igualdade">
+                <div class="activist-header">
+                    <div class="activist-avatar">AL</div>
+                    <div class="activist-info">
+                        <div class="activist-name">Ana Lima</div>
+                        <div class="activist-role">Educadora Social</div>
+                    </div>
+                </div>
+                <div class="activist-bio">
+                    Pedagoga dedicada à educação inclusiva e democratização do ensino, trabalha com comunidades carentes desenvolvendo projetos educacionais inovadores.
+                </div>
+                <div class="activist-causes">
+                    <span class="cause-tag">Educação</span>
+                    <span class="cause-tag">Igualdade</span>
+                </div>
+                <div class="activist-contact">
+                    <div class="contact-item">
+                        <span>📧</span>
+                        <span>ana@educacao.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>📱</span>
+                        <span>(11) 88888-8888</span>
+                    </div>
+                </div>
+                <div class="activist-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">18</div>
+                        <div class="stat-label">Campanhas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">89</div>
+                        <div class="stat-label">Seguidores</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Anos</div>
+                    </div>
+                </div>
+                <div class="activist-actions">
+                    <a href="#" class="btn-small btn-view">👁️ Ver</a>
+                    <a href="#" class="btn-small btn-edit">✏️ Editar</a>
+                    <a href="#" class="btn-small btn-delete">🗑️ Excluir</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado vazio (des

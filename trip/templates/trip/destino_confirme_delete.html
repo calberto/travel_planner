@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Exclusão de Viagem</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .confirmation-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .icon-warning {
+            font-size: 60px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .trip-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .trip-detail {
+            margin-bottom: 10px;
+        }
+        .trip-detail span {
+            font-weight: bold;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        button, .button {
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .cancel-button {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        .cancel-button:hover {
+            background-color: #95a5a6;
+        }
+        .delete-button {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-container">
+        <div class="icon-warning">⚠️</div>
+        <h1>Confirmar Exclusão</h1>
+        <p>Você está prestes a excluir permanentemente a viagem a seguir. Esta ação não pode ser desfeita.</p>
+        
+        <div class="trip-details">
+            <div class="trip-detail">
+                <span>Nome da Viagem:</span> {{ destination.name }}
+            </div>
+            <div class="trip-detail">
+                <span>Observação:</span> {{ destination.description }}
+            </div>
+            <div class="destination-detail">
+                <span>Data:</span> {{ destination.arrive_date }} a {{ destination.departure_date }}
+            </div>
+            <div class="destination-detail">
+                <span>País:</span> {{ destination.country }}
+            </div>
+            <div class="destination-detail">
+                <span>Cidade:</span> {{ destination.city_count }} cidades
+            </div>
+        </div>
+        
+        <p>Todos os dados relacionados, incluindo atividades, notas e fotos serão removidos.</p>
+        
+        <div class="buttons">
+            <a href="{% url 'trip:destination_detail' destination.id %}" class="button cancel-button">Cancelar</a>
+            <form action="{% url 'trip:destination_delete' destination.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="delete-button">Confirmar Exclusão</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

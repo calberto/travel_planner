@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accommodation Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-field {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            max-width: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏨 Accommodation Management</h1>
+            <p>Manage hotels, resorts, and lodging options</p>
+        </div>
+
+        <div class="content">
+
+            <!-- Add New Accommodation Form -->
+            <div class="form-section">
+                <h2 style="margin-bottom: 20px; color: #333;">Add New Accommodation</h2>
+                <form id="accommodationForm">
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="name">Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="type">Type *</label>
+                            <select id="type" name="type" required>
+                                <option value="">Select Type</option>
+                                <option value="Hotel">Hotel</option>
+                                <option value="Resort">Resort</option>
+                                <option value="Hostel">Hostel</option>
+                                <option value="Apartment">Apartment</option>
+                                <option value="B&B">Bed & Breakfast</option>
+                                <option value="Villa">Villa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="location">Location *</label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="stars">Stars</label>
+                            <select id="stars" name="stars">
+                                <option value="">Select Rating</option>
+                                <option value="1">1 Star</option>
+                                <option value="2">2 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="5">5 Stars</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="pricePerNight">Price per Night ($)</label>
+                            <input type="number" id="pricePerNight" name="pricePerNight" min="0" step="0.01">
+                        </div>
+                        <div class="form-field">
+                            <label for="capacity">Capacity</label>
+                            <input type="number" id="capacity" name="capacity" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <a href="{% url 'trip:dashboard' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Dashboard
+                        </a>
+                        <button type="submit" name="action" value="search" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search me-1"></i>Add Accommodation
+                        </button>
+                        <button type="reset" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-undo me-1"></i>Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search accommodations..." onkeyup="searchTable()">
+            </div>
+
+            <!-- Accommodations Table -->
+            <div class="table-container">
+                <table id="accommodationTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Stars</th>
+                            <th>Price/Night</th>
+                            <th>Capacity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accommodationTableBody">
+                        <!-- Sample data -->
+                        <tr>
+                            <td>Grand Palace Hotel</td>
+                            <td>Hotel</td>
+                            <td>Paris, France</td>
+                            <td>5</td>
+                            <td>$350.00</td>
+                            <td>200</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editAccommodation(this)">Edit</button>
+                                <button class="action-btn delete-btn"
+                                    onclick="deleteAccommodation(this)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sunset Resort</td>
+                            <td>Resort</td>
+                            <td>Maldives</td>
+                            <td>4</td>
+                            <td>$500.00</td>
+                            <td>150</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editAccommodation(this)">Edit</button>
+                                <button class="action-btn delete-btn"
+                                    onclick="deleteAccommodation(this)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Downtown Hostel</td>
+                            <td>Hostel</td>
+                            <td>Barcelona, Spain</td>
+                            <td>2</td>
+                            <td>$45.00</td>
+                            <td>80</td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editAccommodation(this)">Edit</button>
+                                <button class="action-btn delete-btn"
+                                    onclick="deleteAccommodation(this)">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission handler
+        document.getElementById('accommodationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const accommodation = {};
+
+            for (let [key, value] of formData.entries()) {
+                accommodation[key] = value;
+            }
+
+            addAccommodationToTable(accommodation);
+            this.reset();
+        });
+
+        function addAccommodationToTable(accommodation) {
+            const tbody = document.getElementById('accommodationTableBody');
+            const row = tbody.insertRow();
+
+            row.innerHTML = `
+                <td>${accommodation.name}</td>
+                <td>${accommodation.type}</td>
+                <td>${accommodation.location}</td>
+                <td>${accommodation.stars || '-'}</td>
+                <td>${accommodation.pricePerNight ? '$' + parseFloat(accommodation.pricePerNight).toFixed(2) : '-'}</td>
+                <td>${accommodation.capacity || '-'}</td>
+                <td>
+                    <button class="action-btn edit-btn" onclick="editAccommodation(this)">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteAccommodation(this)">Delete</button>
+                </td>
+            `;
+        }
+
+        function editAccommodation(button) {
+            const row = button.closest('tr');
+            const cells = row.getElementsByTagName('td');
+
+            // Fill form with current data
+            document.getElementById('name').value = cells[0].textContent;
+            document.getElementById('type').value = cells[1].textContent;
+            document.getElementById('location').value = cells[2].textContent;
+            document.getElementById('stars').value = cells[3].textContent === '-' ? '' : cells[3].textContent;
+            document.getElementById('pricePerNight').value = cells[4].textContent === '-' ? '' : cells[4].textContent.replace('$', '');
+            document.getElementById('capacity').value = cells[5].textContent === '-' ? '' : cells[5].textContent;
+
+            // Remove the row to be updated
+            row.remove();
+
+            // Scroll to form
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteAccommodation(button) {
+            if (confirm('Are you sure you want to delete this accommodation?')) {
+                button.closest('tr').remove();
+            }
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById('accommodationTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < td.length - 1; j++) {
+                    if (td[j] && td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

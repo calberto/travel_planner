@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Transporte</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-item input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #9E9E9E, #757575);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .radio-group,
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Formulário de Transporte</h1>
+            <p>Planeje sua viagem com nossos serviços de transporte</p>
+
+        </div>
+
+        <div class="form-container">
+            <form id="transportForm">
+                <!-- Informações Pessoais -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                        Informações Pessoais
+                    </h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo *</label>
+                            <input type="text" id="nome" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="telefone">Telefone *</label>
+                            <input type="tel" id="telefone" name="telefone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="documento">CPF/RG *</label>
+                            <input type="text" id="documento" name="documento" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes da Viagem -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path
+                                d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+                        </svg>
+                        Detalhes da Viagem
+                    </h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="origem">Local de Origem *</label>
+                            <input type="text" id="origem" name="origem" placeholder="Ex: Aeroporto, Hotel, Endereço"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="destino">Local de Destino *</label>
+                            <input type="text" id="destino" name="destino" placeholder="Ex: Aeroporto, Hotel, Endereço"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dataViagem">Data da Viagem *</label>
+                            <input type="date" id="dataViagem" name="dataViagem" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="horario">Horário *</label>
+                            <input type="time" id="horario" name="horario" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passageiros">Número de Passageiros *</label>
+                        <select id="passageiros" name="passageiros" required>
+                            <option value="">Selecione...</option>
+                            <option value="1">1 Passageiro</option>
+                            <option value="2">2 Passageiros</option>
+                            <option value="3">3 Passageiros</option>
+                            <option value="4">4 Passageiros</option>
+                            <option value="5">5 Passageiros</option>
+                            <option value="6+">6 ou mais Passageiros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tipo de Transporte -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path
+                                d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
+                        </svg>
+                        Tipo de Transporte
+                    </h2>
+
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="economico" name="tipoTransporte" value="economico">
+                            <label for="economico">Econômico</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="executivo" name="tipoTransporte" value="executivo">
+                            <label for="executivo">Executivo</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="premium" name="tipoTransporte" value="premium">
+                            <label for="premium">Premium</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="van" name="tipoTransporte" value="van">
+                            <label for="van">Van (Grupo)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Serviços Adicionais -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                        </svg>
+                        Serviços Adicionais
+                    </h2>
+
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="wifi" name="servicos" value="wifi">
+                            <label for="wifi">Wi-Fi</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agua" name="servicos" value="agua">
+                            <label for="agua">Água Mineral</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="jornais" name="servicos" value="jornais">
+                            <label for="jornais">Jornais/Revistas</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cadeirinha" name="servicos" value="cadeirinha">
+                            <label for="cadeirinha">Cadeirinha Infantil</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="acessibilidade" name="servicos" value="acessibilidade">
+                            <label for="acessibilidade">Acessibilidade</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações de Voo (Opcional) -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path
+                                d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                        </svg>
+                        Informações de Voo (Opcional)
+                    </h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companhiaAerea">Companhia Aérea</label>
+                            <input type="text" id="companhiaAerea" name="companhiaAerea"
+                                placeholder="Ex: TAM, GOL, Azul">
+                        </div>
+                        <div class="form-group">
+                            <label for="numeroVoo">Número do Voo</label>
+                            <input type="text" id="numeroVoo" name="numeroVoo" placeholder="Ex: G3 1234">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                        </svg>
+                        Observações Adicionais
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="observacoes">Comentários ou Solicitações Especiais</label>
+                        <textarea id="observacoes" name="observacoes"
+                            placeholder="Descreva qualquer informação adicional importante para sua viagem..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="{% url 'trip:dashboard' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Retornar
+                    </a>
+                    <button type="submit" name="action" value="search" class="btn btn-primary btn-sm">
+                        <i class="fas fa-search me-1"></i>Salvar
+                    </button>
+                    <button type="reset" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-undo me-1"></i>Limpar
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('transportForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Validação básica
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const origem = document.getElementById('origem').value;
+            const destino = document.getElementById('destino').value;
+            const dataViagem = document.getElementById('dataViagem').value;
+            const horario = document.getElementById('horario').value;
+            const passageiros = document.getElementById('passageiros').value;
+
+            if (!nome || !email || !telefone || !origem || !destino || !dataViagem || !horario || !passageiros) {
+                alert('Por favor, preencha todos os campos obrigatórios (*)');
+                return;
+            }
+
+            // Verificar se a data não é no passado
+            const hoje = new Date().toISOString().split('T')[0];
+            if (dataViagem < hoje) {
+                alert('A data da viagem não pode ser no passado');
+                return;
+            }
+
+            // Verificar tipo de transporte selecionado
+            const tipoTransporte = document.querySelector('input[name="tipoTransporte"]:checked');
+            if (!tipoTransporte) {
+                alert('Por favor, selecione um tipo de transporte');
+                return;
+            }
+
+            // Coletar serviços selecionados
+            const servicos = Array.from(document.querySelectorAll('input[name="servicos"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            // Simular envio
+            alert('Solicitação de transporte enviada com sucesso!\n\nResumo:\n' +
+                `Nome: ${nome}\n` +
+                `Origem: ${origem}\n` +
+                `Destino: ${destino}\n` +
+                `Data: ${dataViagem} às ${horario}\n` +
+                `Passageiros: ${passageiros}\n` +
+                `Tipo: ${tipoTransporte.value}\n` +
+                `Serviços: ${servicos.length > 0 ? servicos.join(', ') : 'Nenhum'}`);
+        });
+
+        // Máscara para telefone
+        document.getElementById('telefone').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 11) {
+                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 6) {
+                value = value.replace(/(\d{2})(\d{4})(\d+)/, '($1) $2-$3');
+            } else if (value.length >= 2) {
+                value = value.replace(/(\d{2})(\d+)/, '($1) $2');
+            }
+            e.target.value = value;
+        });
+
+        // Definir data mínima como hoje
+        document.getElementById('dataViagem').min = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+
+</html>
